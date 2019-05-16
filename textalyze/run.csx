@@ -35,7 +35,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
                     new LanguageInput(id: "1", text: text)
                 });
 
-    var langResults = client.DetectLanguageAsync(false, inputDocuments).Result;
+    var langResults = await client.DetectLanguageAsync(false, inputDocuments);
     foreach (var document in langResults.Documents)
     {
         log.LogInformation($"Document ID: {document.Id} , Language: {document.DetectedLanguages[0].Iso6391Name}");
