@@ -58,13 +58,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     }
 
     //Detecting entities in the text
-    var inputDocuments3 = new MultiLanguageBatchInput(
-    new List<MultiLanguageInput>
-    {
-            new MultiLanguageInput(inputLanguage, "1", inputText)
-    });
-
-    var entitiesResult = await client.EntitiesAsync(false, inputDocuments3);
+    var entitiesResult = await client.EntitiesAsync(false, inputDocuments2);
     foreach (var document in entitiesResult.Documents)
     {
         log.LogInformation("\t Entities:");
@@ -75,6 +69,22 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
             {
                 log.LogInformation($"\t\t\tOffset: {match.Offset},\tLength: {match.Length},\tScore: {match.EntityTypeScore:F3}");
             }
+        }
+    }
+
+    //Detecting keyphrases
+    var kpResults = await client.KeyPhrasesAsync(false, inputDocuments2);
+
+    // Printing keyphrases
+    foreach (var document in kpResults.Documents)
+    {
+        log.LogInformation($"Document ID: {document.Id} ");
+
+        log.LogInformation("\t Key phrases:");
+
+        foreach (string keyphrase in document.KeyPhrases)
+        {
+            log.LogInformation($"\t\t{keyphrase}");
         }
     }
 
