@@ -29,7 +29,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         Endpoint = textAnalyticsEndpoint
     };
 
-    string language = await DetectLanguage(client, text);
+    string language = await DetectLanguage(client, text, log);
     log.LogInformation($"Detected: {language}");
 
     var inputDocuments = new LanguageBatchInput(
@@ -49,7 +49,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         : new BadRequestObjectResult("Please pass the text input for the text analytics operations");
 }
 
-public static async Task<string> DetectLanguage(TextAnalyticsClient client, string text)
+public static async Task<string> DetectLanguage(TextAnalyticsClient client, string text, ILogger log)
 {
     var inputDocuments = new LanguageBatchInput(
         new List<LanguageInput>
