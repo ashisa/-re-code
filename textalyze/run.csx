@@ -43,13 +43,13 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     string inputLanguage = document.DetectedLanguages[0].Iso6391Name;
 
     //Detecting sentiment of the input text
-    var inputDocuments = new MultiLanguageBatchInput(
+    var inputDocuments2 = new MultiLanguageBatchInput(
     new List<MultiLanguageInput>
     {
             new MultiLanguageInput(inputLanguage, "1", inputText)
     });
 
-    var sentimentResult = await client.SentimentAsync(false, inputDocuments);
+    var sentimentResult = await client.SentimentAsync(false, inputDocuments2);
     foreach (var document in result.Documents)
     {
         log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {document.Score:0.00}");
