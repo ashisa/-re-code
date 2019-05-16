@@ -57,6 +57,26 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {sentimentScore:0.00}");
     }
 
+    //Detecting entities in the text
+    var inputDocuments3 = new MultiLanguageBatchInput(
+    new List<MultiLanguageInput>
+    {
+            new MultiLanguageInput(inputLanguage, "1", inputText)
+    });
+
+    var entitiesResult = await client.EntitiesAsync(false, inputDocuments3);
+    foreach (var document in entitiesResult.Documents)
+    {
+        log.LogInformation("\t Entities:");
+        foreach (var entity in document.Entities)
+        {
+            log.LogInformation($"\t\tName: {entity.Name},\tType: {entity.Type ?? "N/A"},\tSub-Type: {entity.SubType ?? "N/A"}");
+            foreach (var match in entity.Matches)
+            {
+                log.LogInformation($"\t\t\tOffset: {match.Offset},\tLength: {match.Length},\tScore: {match.EntityTypeScore:F3}");
+            }
+        }
+    }
 
     return inputText != null
         ? (ActionResult)new OkObjectResult($"Hello, {inputText}")
