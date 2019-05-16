@@ -27,6 +27,8 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         Endpoint = textAnalyticsEndpoint
     };
 
+    dynamic result = new JObject();
+
     //Detecting language first
     var inputDocuments = new LanguageBatchInput(
             new List<LanguageInput>
@@ -41,6 +43,8 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         inputLanguage = document.DetectedLanguages[0].Iso6391Name;
         log.LogInformation($"Document ID: {document.Id} , Language: {inputLanguage}");
     }
+
+    result.language = inputLanguage;
 
     //Detecting sentiment of the input text
     var inputDocuments2 = new MultiLanguageBatchInput(
@@ -57,20 +61,33 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {sentimentScore:0.00}");
     }
 
+    result.sentimentScore = sentimentScore;
+
     //Detecting entities in the text
     var entitiesResult = await client.EntitiesAsync(false, inputDocuments2);
+    JArray entities = new JArray();
     foreach (var document in entitiesResult.Documents)
     {
+        dynamic entityObject = new JObject();
         log.LogInformation("\t Entities:");
         foreach (var entity in document.Entities)
         {
+            entityObject.name = entity.Name;
+            entityObject.type = entity.type;
+            entityObject.subtype = entity.subtype;
             log.LogInformation($"\t\tName: {entity.Name},\tType: {entity.Type ?? "N/A"},\tSub-Type: {entity.SubType ?? "N/A"}");
             foreach (var match in entity.Matches)
             {
+                entityObject.offset = match.Offset;
+                entityObject.length = match.Length;
+                entityObject.score = match.EntityTypeScore;
                 log.LogInformation($"\t\t\tOffset: {match.Offset},\tLength: {match.Length},\tScore: {match.EntityTypeScore:F3}");
             }
+            entities.add(entityObject);
         }
     }
+    result.entities = entities;
+    log.LogInformation(result);
 
     //Detecting keyphrases
     var kpResults = await client.KeyPhrasesAsync(false, inputDocuments2);
