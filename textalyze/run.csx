@@ -35,12 +35,12 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
                 });
 
     var langResults = await client.DetectLanguageAsync(false, inputDocuments);
+    string inputLanguage = null;
     foreach (var document in langResults.Documents)
     {
-        log.LogInformation($"Document ID: {document.Id} , Language: {document.DetectedLanguages[0].Iso6391Name}");
+        inputLanguage = document.DetectedLanguages[0].Iso6391Name;
+        log.LogInformation($"Document ID: {document.Id} , Language: {inputLanguage}");
     }
-
-    string inputLanguage = document.DetectedLanguages[0].Iso6391Name;
 
     //Detecting sentiment of the input text
     var inputDocuments2 = new MultiLanguageBatchInput(
@@ -50,7 +50,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     });
 
     var sentimentResult = await client.SentimentAsync(false, inputDocuments2);
-    foreach (var document in result.Documents)
+    foreach (var document in sentimentResult.Documents)
     {
         log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {document.Score:0.00}");
     }
