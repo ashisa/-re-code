@@ -49,7 +49,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         : new BadRequestObjectResult("Please pass the text input for the text analytics operations");
 }
 
-public async string DetectLanguage(TextAnalyticsClient client)
+public async Tast<string> DetectLanguage(TextAnalyticsClient client)
 {
     var inputDocuments = new LanguageBatchInput(
         new List<LanguageInput>
