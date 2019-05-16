@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using Microsoft.Azure.CognitiveServices.Language.TextAnalytics;
 using Microsoft.Azure.CognitiveServices.Language.TextAnalytics.Models;
 using Microsoft.Rest;
+using System.Threading;
+using System.Threading.Tasks;
 
 public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 {
@@ -19,6 +21,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 
     string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
     dynamic data = JsonConvert.DeserializeObject(requestBody);
+    string text = data.text;
 
     var credentials = new ApiKeyServiceClientCredentials(textAnalyticsAPIKey);
     var client = new TextAnalyticsClient(credentials)
