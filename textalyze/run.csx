@@ -17,11 +17,9 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     string textAnalyticsAPIKey = Environment.GetEnvironmentVariable("text_analytics_api_key");
     string textAnalyticsEndpoint = Environment.GetEnvironmentVariable("text_analytics_endpoint");
 
-    log.LogInformation($"found key: {textAnalyticsAPIKey}");
-
     string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
     dynamic data = JsonConvert.DeserializeObject(requestBody);
-    string text = data.text;
+    string inputText = data.text;
 
     var credentials = new ApiKeyServiceClientCredentials(textAnalyticsAPIKey);
     var client = new TextAnalyticsClient(credentials)
@@ -29,13 +27,11 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         Endpoint = textAnalyticsEndpoint
     };
 
-    string language = await DetectLanguage(client, text, log);
-    log.LogInformation($"Detected: {language}");
-
+    //Detecting language first
     var inputDocuments = new LanguageBatchInput(
             new List<LanguageInput>
                 {
-                    new LanguageInput(id: "1", text: text)
+                    new LanguageInput(id: "1", text: inputText)
                 });
 
     var langResults = await client.DetectLanguageAsync(false, inputDocuments);
@@ -44,26 +40,25 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         log.LogInformation($"Document ID: {document.Id} , Language: {document.DetectedLanguages[0].Iso6391Name}");
     }
 
-    return text != null
-        ? (ActionResult)new OkObjectResult($"Hello, {text}")
-        : new BadRequestObjectResult("Please pass the text input for the text analytics operations");
-}
+    string inputLanguage = document.DetectedLanguages[0].Iso6391Name;
 
-public static async Task<string> DetectLanguage(TextAnalyticsClient client, string text, ILogger log)
-{
-    var inputDocuments = new LanguageBatchInput(
-        new List<LanguageInput>
-            {
-                    new LanguageInput(id: "1", text: text)
-            });
-
-    var langResults = await client.DetectLanguageAsync(false, inputDocuments);
-    foreach (var document in langResults.Documents)
+    //Detecting sentiment of the input text
+    var inputDocuments = new MultiLanguageBatchInput(
+    new List<MultiLanguageInput>
     {
-        log.LogInformation($"Document ID: {document.Id} , Language: {document.DetectedLanguages[0].Iso6391Name}");
+            new MultiLanguageInput(inputLanguage, "1", inputText)
+    });
+
+    var sentimentResult = await client.SentimentAsync(false, inputDocuments);
+    foreach (var document in result.Documents)
+    {
+        log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {document.Score:0.00}");
     }
 
-    return document.DetectedLanguages[0].Iso6391Name;
+
+    return inputText != null
+        ? (ActionResult)new OkObjectResult($"Hello, {inputText}")
+        : new BadRequestObjectResult("Please pass the text input for the text analytics operations");
 }
 
 class ApiKeyServiceClientCredentials : ServiceClientCredentials
