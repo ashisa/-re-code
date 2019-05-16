@@ -29,6 +29,9 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         Endpoint = textAnalyticsEndpoint
     };
 
+    string language = await DetectLanguage(client);
+    log.LogInformation($"Detected: {language}");
+
     var inputDocuments = new LanguageBatchInput(
             new List<LanguageInput>
                 {
@@ -44,6 +47,23 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     return text != null
         ? (ActionResult)new OkObjectResult($"Hello, {text}")
         : new BadRequestObjectResult("Please pass the text input for the text analytics operations");
+}
+
+public async string DetectLanguage(TextAnalyticsClient client)
+{
+    var inputDocuments = new LanguageBatchInput(
+        new List<LanguageInput>
+            {
+                    new LanguageInput(id: "1", text: text)
+            });
+
+    var langResults = await client.DetectLanguageAsync(false, inputDocuments);
+    foreach (var document in langResults.Documents)
+    {
+        log.LogInformation($"Document ID: {document.Id} , Language: {document.DetectedLanguages[0].Iso6391Name}");
+    }
+
+    return document.DetectedLanguages[0].Iso6391Name;
 }
 
 class ApiKeyServiceClientCredentials : ServiceClientCredentials
