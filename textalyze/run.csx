@@ -50,9 +50,11 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     });
 
     var sentimentResult = await client.SentimentAsync(false, inputDocuments2);
+    double sentimentScore = null;
     foreach (var document in sentimentResult.Documents)
     {
-        log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {document.Score:0.00}");
+        sentimentScore = document.Score;
+        log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {sentimentScore:0.00}");
     }
 
 
