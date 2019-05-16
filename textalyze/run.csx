@@ -21,6 +21,6 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     text = text ?? data?.text;
 
     return text != null
-        ? (ActionResult)new OkObjectResult($"Hello, {name}")
-        : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+        ? (ActionResult)new OkObjectResult($"Hello, {text}")
+        : new BadRequestObjectResult("Please pass the text input for the text analytics operations");
 }
