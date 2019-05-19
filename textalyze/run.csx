@@ -66,7 +66,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 
     //Detecting entities in the text
     var entitiesResult = await client.EntitiesAsync(false, inputDocuments2);
-    JObject entities = new JObject();
+    JArray entities = new JArray();
     foreach (var document in entitiesResult.Documents)
     {
         dynamic entityObject = new JObject();
@@ -84,7 +84,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
                 entityObject.score = match.EntityTypeScore;
                 //log.LogInformation($"\t\t\tOffset: {match.Offset},\tLength: {match.Length},\tScore: {match.EntityTypeScore:F3}");
             }
-            entities.add(entityObject);
+            entities.Add(entityObject);
         }
     }
     result.entities = entities;
