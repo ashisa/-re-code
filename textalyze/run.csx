@@ -42,7 +42,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     foreach (var document in langResults.Documents)
     {
         inputLanguage = document.DetectedLanguages[0].Iso6391Name;
-        log.LogInformation($"Document ID: {document.Id} , Language: {inputLanguage}");
+        //log.LogInformation($"Document ID: {document.Id} , Language: {inputLanguage}");
     }
 
     result.language = inputLanguage;
@@ -59,7 +59,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     foreach (var document in sentimentResult.Documents)
     {
         sentimentScore = document.Score;
-        log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {sentimentScore:0.00}");
+        //log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {sentimentScore:0.00}");
     }
 
     result.sentimentScore = sentimentScore;
@@ -70,7 +70,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     foreach (var document in entitiesResult.Documents)
     {
         dynamic entityObject = new JObject();
-        log.LogInformation("\t Entities:");
+        //log.LogInformation("\t Entities:");
         foreach (var entity in document.Entities)
         {
             entityObject.name = entity.Name;
@@ -88,24 +88,33 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         }
     }
     result.entities = entities;
-    string results = result.ToString();
-    log.LogInformation(results);
+    string a = result.ToString();
+    //log.LogInformation(a);
 
     //Detecting keyphrases
     var kpResults = await client.KeyPhrasesAsync(false, inputDocuments2);
+    JArray keyPhrases = new JArray();
 
     // Printing keyphrases
     foreach (var document in kpResults.Documents)
     {
-        log.LogInformation($"Document ID: {document.Id} ");
+        dynamic phraseObject = new JObject();
 
-        log.LogInformation("\t Key phrases:");
+        //log.LogInformation($"Document ID: {document.Id} ");
+
+        //log.LogInformation("\t Key phrases:");
 
         foreach (string keyphrase in document.KeyPhrases)
         {
-            log.LogInformation($"\t\t{keyphrase}");
+            //log.LogInformation($"\t\t{keyphrase}");
+            phraseObject.keyPhrase = keyphrase;
         }
+        keyPhrases.Add(phraseObject);
     }
+    result.keyphrases = keyPhrases;
+    string b = result.ToString();
+    log.LogInformation(b);
+
 
     return inputText != null
         ? (ActionResult)new OkObjectResult($"Hello, {inputText}")
