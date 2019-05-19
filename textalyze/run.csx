@@ -75,13 +75,13 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
             entityObject.name = entity.Name;
             entityObject.type = entity.Type;
             entityObject.subtype = entity.SubType;
-            log.LogInformation($"\t\tName: {entity.Name},\tType: {entity.Type ?? "N/A"},\tSub-Type: {entity.SubType ?? "N/A"}");
+            //log.LogInformation($"\t\tName: {entity.Name},\tType: {entity.Type ?? "N/A"},\tSub-Type: {entity.SubType ?? "N/A"}");
             foreach (var match in entity.Matches)
             {
                 entityObject.offset = match.Offset;
                 entityObject.length = match.Length;
                 entityObject.score = match.EntityTypeScore;
-                log.LogInformation($"\t\t\tOffset: {match.Offset},\tLength: {match.Length},\tScore: {match.EntityTypeScore:F3}");
+                //log.LogInformation($"\t\t\tOffset: {match.Offset},\tLength: {match.Length},\tScore: {match.EntityTypeScore:F3}");
             }
             entities.add(entityObject);
         }
