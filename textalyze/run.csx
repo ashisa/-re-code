@@ -88,7 +88,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         }
     }
     result.entities = entities;
-    log.LogInformation(result.ToString());
+    log.LogInformation("abc");
 
     //Detecting keyphrases
     var kpResults = await client.KeyPhrasesAsync(false, inputDocuments2);
