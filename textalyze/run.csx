@@ -117,7 +117,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 
 
     return inputText != null
-        ? (ActionResult)new OkObjectResult($"Hello, {inputText}")
+        ? (ActionResult)new OkObjectResult($"Hello, {result.ToString()}")
         : new BadRequestObjectResult("Please pass the text input for the text analytics operations");
 }
 
