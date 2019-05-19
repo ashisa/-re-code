@@ -66,7 +66,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 
     //Detecting entities in the text
     var entitiesResult = await client.EntitiesAsync(false, inputDocuments2);
-    JArray entities = new JObject();
+    JObject entities = new JObject();
     foreach (var document in entitiesResult.Documents)
     {
         dynamic entityObject = new JObject();
