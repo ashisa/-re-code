@@ -42,10 +42,10 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     foreach (var document in langResults.Documents)
     {
         inputLanguage = document.DetectedLanguages[0].Iso6391Name;
-        //log.LogInformation($"Document ID: {document.Id} , Language: {inputLanguage}");
     }
 
     result.language = inputLanguage;
+    log.LogInformation($"{result.ToString()}");
 
     //Detecting sentiment of the input text
     var inputDocuments2 = new MultiLanguageBatchInput(
@@ -59,10 +59,10 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     foreach (var document in sentimentResult.Documents)
     {
         sentimentScore = document.Score;
-        //log.LogInformation($"Document ID: {document.Id} , Sentiment Score: {sentimentScore:0.00}");
     }
 
     result.sentimentScore = sentimentScore;
+    log.LogInformation($"{result.ToString()}");
 
     //Detecting entities in the text
     var entitiesResult = await client.EntitiesAsync(false, inputDocuments2);
@@ -70,13 +70,11 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     foreach (var document in entitiesResult.Documents)
     {
         dynamic entityObject = new JObject();
-        //log.LogInformation("\t Entities:");
         foreach (var entity in document.Entities)
         {
             entityObject.name = entity.Name;
             entityObject.type = entity.Type;
             entityObject.subtype = entity.SubType;
-            //log.LogInformation($"\t\tName: {entity.Name},\tType: {entity.Type ?? "N/A"},\tSub-Type: {entity.SubType ?? "N/A"}");
             foreach (var match in entity.Matches)
             {
                 entityObject.offset = match.Offset;
@@ -88,8 +86,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         }
     }
     result.entities = entities;
-    string a = result.ToString();
-    //log.LogInformation(a);
+    log.LogInformation($"{result.ToString()}");
 
     //Detecting keyphrases
     var kpResults = await client.KeyPhrasesAsync(false, inputDocuments2);
@@ -99,26 +96,19 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     foreach (var document in kpResults.Documents)
     {
         dynamic phraseObject = new JObject();
-
-        //log.LogInformation($"Document ID: {document.Id} ");
-
-        //log.LogInformation("\t Key phrases:");
-
         foreach (string keyphrase in document.KeyPhrases)
         {
-            //log.LogInformation($"\t\t{keyphrase}");
             phraseObject.keyPhrase = keyphrase;
         }
         keyPhrases.Add(phraseObject);
     }
     result.keyphrases = keyPhrases;
-    string b = result.ToString();
-    log.LogInformation(b);
+    log.LogInformation($"{result.ToString()}");
 
 
     return inputText != null
-        ? (ActionResult)new OkObjectResult($"Hello, {result.ToString()}")
-        : new BadRequestObjectResult("Please pass the text input for the text analytics operations");
+        ? (ActionResult)new OkObjectResult($"{result.ToString()}")
+        : new BadRequestObjectResult("{ \"error\": \"Please pass the text input for the text analytics operations\"");
 }
 
 class ApiKeyServiceClientCredentials : ServiceClientCredentials
